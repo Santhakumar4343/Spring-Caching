@@ -1,0 +1,67 @@
+Caching
+-------
+Caching is a technique used to store frequently accessed data in memory (or temporary storage) to improve application performance and 
+reduce expensive operations (like database calls, API requests, etc.).
+
+Types of Caching
+----------------
+In-Memory Caching (e.g., using ConcurrentHashMap, EhCache, or Caffeine)
+
+Distributed Caching (e.g., Redis, Hazelcast, Memcached) – useful in multi-node systems.
+
+Local File Cache – stores cache in the local disk.
+
+JVM-based Caching – built directly in the Java Virtual Machine (e.g., @Cacheable with ConcurrentMapCache)
+
+
+@EnableCaching
+--------------
+This annotation is placed on your main Spring Boot application class (or a config class) to enable Spring’s annotation-based caching support.
+
+@SpringBootApplication
+@EnableCaching
+public class MyApp { }
+
+
+@Cacheable
+----------
+Caches the result of a method the first time it's called with a particular set of parameters, and returns the cached value on subsequent calls.
+
+@Cacheable(value = "products", key = "#id")
+public Product getProductById(Long id) {
+    // called only if not cached
+    return productRepository.findById(id).orElse(null);
+}
+
+
+Why key is needed:
+
+To uniquely identify the cached data.
+
+Example: key = #id means the product with a specific ID (e.g., ID = 5) will be cached as a separate entry
+
+
+@CachePut
+---------
+Always executes the method and updates the cache with the new result.
+
+When to use:
+Use this when you update something in the DB and want the cache to reflect the latest result.
+
+@CachePut(value = "products", key = "#id")
+public Product updateProduct(int id,Product product) {
+    return productRepository.save(product);
+}
+
+
+@CacheEvict
+-----------
+Removes a specific entry or all entries from the cache.
+
+When to use:
+Use when you delete data or want to clear cache.
+
+@CacheEvict(value = "products", key = "#id")
+public void deleteProduct(Long id) {
+    productRepository.deleteById(id);
+}
